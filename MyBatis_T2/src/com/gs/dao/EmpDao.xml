@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gs.dao.EmpDao">
+    <select id="allEmp" resultType="Emp">
+      <![CDATA[
+        select * from emp
+        ]]>
+    </select>
+    
+    <!--根据ID查询对象-->
+    <select id="getById"   resultType="emp">
+        <![CDATA[
+          select ename,age from emp where id=#{id}
+        ]]>
+    </select>
+
+    <!--根据ID查询对象2-->
+    <select id="getById2"   resultType="emp">
+        <![CDATA[
+          select * from emp where ename=#{ygxm}
+        ]]>
+    </select>
+
+
+    <select id="getByNameAndAge"  resultType="emp">
+        <![CDATA[
+          select * from emp where ename=#{ename} and age=#{age}
+        ]]>
+    </select>
+
+    <select id="getByObj" parameterType="emp"  resultType="emp">
+        <![CDATA[
+          select * from emp where id=#{id} and age=#{age}
+        ]]>
+    </select>
+
+    <select id="getByObj2" resultType="emp">
+        <![CDATA[
+          select * from emp where id=#{query.id} and age=#{query.age}
+        ]]>
+    </select>
+
+    <insert id="saveEmp" parameterType="emp">
+         <![CDATA[
+          insert into emp values(null,#{ename},#{age},#{did})
+        ]]>
+    </insert>
+
+    <insert id="saveEmp2" parameterType="List">
+         <![CDATA[
+          insert into emp values
+        ]]>
+        <foreach collection="list" item="e" separator=",">
+            (null,#{ename},#{e.age},#{e.did})
+        </foreach>
+    </insert>
+
+    <update id="updEmp" parameterType="emp">
+         <![CDATA[
+           update emp set ename=#{ename},age=#{age} where id=#{id}
+        ]]>
+    </update>
+
+    <delete id="delEmp">
+        <![CDATA[
+           delete from emp where id=#{id}
+        ]]>
+    </delete>
+
+
+    <!--使用sql标签定义重复的sql语句-->
+    <sql id="where">
+        where id=#{id}
+    </sql>
+    <select id="sqltest1"   resultType="emp">
+        <![CDATA[
+          select ename,age from emp
+        ]]>
+        <include refid="where"/>
+    </select>
+    <delete id="sqltest2">
+        <![CDATA[
+           delete from emp
+        ]]>
+        <include refid="where"/>
+    </delete>
+
+    <select id="sel" resultType="map">
+        <![CDATA[
+          select e.ename,e.age,d.title from emp e,t_department d where e.did=d.id
+        ]]>
+    </select>
+
+
+
+    <update id="testException" parameterType="emp">
+        <![CDATA[
+           update emp set id=#{id} where age=#{age}
+        ]]>
+    </update>
+</mapper>

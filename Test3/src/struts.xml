@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+		"-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+		"http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<!-- 中文乱码处理UTF-8,GBK,GB2312 -->
+	<constant name="struts.il8n.encoding" value="UTF-8"></constant>
+
+	<!--  struts.xml修改后系统自动重新加载，开发阶段会比较方便，但是生产环境最好是false -->
+	<constant name="struts.configuration.xml.reload" value="true"></constant> 
+	<!-- 打印出更详细的错误信息 -->
+	<constant name="struts.devMode" value="true"></constant>
+
+	<!-- 配置一个包，继承struts默认的包，加载默认拦截器 -->
+	<package name="test" extends="struts-default">
+		<!-- 因为将action交给spring管理，因此这里的class引用spring配置文件配置的id属性 -->
+		<action name="dept" class="gz.ht.action.DepartmentAction">
+
+		</action>
+	</package>
+</struts>

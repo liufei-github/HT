@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gs.dao.DepartmentDao">
+    <select id="listAll" resultType="Department">
+		<![CDATA[
+
+		select * from t_department
+
+        ]]>
+	</select>
+
+    <select id="getById" resultType="department">
+		<![CDATA[
+
+			select id,title from t_department where id = #{ids}
+
+        ]]>
+	</select>
+
+    <select id="getByTitle" resultType="Department">
+		<![CDATA[
+
+		select * from t_department where title=#{titleName}
+
+        ]]>
+	</select>
+    <select id="getByIdAndTitle" resultType="Department">
+		<![CDATA[
+
+		select * from t_department where id =#{id} and title=#{title}
+
+        ]]>
+	</select>
+
+    <select id="getByObj" parameterType="department" resultType="Department">
+		<![CDATA[
+
+		select * from t_department where id =#{id} and title=#{title}
+
+        ]]>
+	</select>
+
+    <select id="getByObj1" parameterType="department" resultType="Department">
+		<![CDATA[
+
+		select * from t_department where id =#{dd.id} and title=#{dd.title}
+
+        ]]>
+	</select>
+
+    <insert id="saveDept" parameterType="department">
+		<![CDATA[
+
+		insert into t_department(title,des) values(#{title},#{des})
+
+        ]]>
+	</insert>
+
+    <insert id="saveDept2" parameterType="List">
+        <![CDATA[
+		insert into t_department(title,des) values
+	]]>
+        <foreach collection="list" item="dept" separator=",">
+            (#{dept.title},#{dept.des})
+        </foreach>
+    </insert>
+
+    <update id="updDept" parameterType="department">
+		update t_department set title=#{title},des=#{des} where id=#{id}
+	</update>
+
+    <delete id="delDept" parameterType="integer">
+		delete from t_department where id=#{id}
+	</delete>
+
+
+    <!--sql标签-->
+    <sql id="whereid">
+		where id=#{id}
+	</sql>
+    <select id="testsql1" resultType="department">
+        <![CDATA[
+		select * from t_department
+	]]>
+        <include refid="whereid"/>
+    </select>
+
+    <delete id="testsql2">
+        delete from t_department
+        <include refid="whereid"/>
+    </delete>
+
+    <update id="rollbacktest" parameterType="department">
+        update t_department set id=1 where id=2
+    </update>
+
+    <select id="testmap" resultType="map">
+        <![CDATA[
+		select e.ename,e.age,d.title from emp e,t_department d where e.did=d.id
+	]]>
+    </select>
+
+    <resultMap id="deptMap" type="department">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="des" property="des"/>
+    </resultMap>
+    <select id="rm" resultMap="deptMap">
+         <![CDATA[
+		select * from t_department
+	]]>
+    </select>
+
+    <resultMap id="dMap" type="department">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="des" property="des"/>
+        <association property="detail" javaType="departmentDetail">
+            <id column="id" property="id"/>
+            <result column="create_by" property="createBy"/>
+            <result column="create_time" property="createTime"/>
+        </association>
+    </resultMap>
+    <select id="getDeptById" resultMap="dMap">
+        select * from t_department d,t_department_detail dd where d.id=dd.id and d.id=#{id}
+    </select>
+
+    <resultMap id="dMap2" type="department">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="des" property="des"/>
+       <collection property="emps" javaType="list" ofType="emp">
+            <id column="empid" property="id"/>
+           <result column="ename" property="ename"/>
+           <result column="age" property="age"/>
+           <result column="did" property="did"/>
+       </collection>
+    </resultMap>
+
+    <select id="getDepts" resultMap="dMap2">
+        select d.*,e.id as empid,e.ename,e.age,e.did from t_department d ,emp e where d.id=e.did
+    </select>
+
+    <select id="getEmpByName" parameterType="emp"  resultType="emp">
+        <![CDATA[
+          select * from emp where  ename like concat('%',#{ename},'%')
+        ]]>
+
+    </select>
+
+    <insert id="saveGetKey" parameterType="department">
+        <selectKey keyColumn="id" keyProperty="id" resultType="integer" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+        <![CDATA[
+          insert into t_department(title,des) values (#{title},#{des})
+        ]]>
+    </insert>
+</mapper>

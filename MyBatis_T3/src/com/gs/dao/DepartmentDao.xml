@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gs.dao.DepartmentDao">
+
+
+    <resultMap id="deptMap" type="department">
+        <id column="id" property="id"/>
+        <result column="deptname" property="title"/>
+        <result column="des" property="des"/>
+    </resultMap>
+
+    <select id="listAll" resultMap="deptMap">
+        <![CDATA[
+          select id,title as deptname,des from t_department
+        ]]>
+    </select>
+
+    <resultMap id="deptanddetail" type="department">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="des" property="des"/>
+        <association property="detail" javaType="departmentDetail">
+            <id column="id" property="id"/>
+            <result column="create_by" property="createBy"/>
+            <result column="create_time" property="createTime"/>
+        </association>
+    </resultMap>
+    <!--一对一的关联查询-->
+    <select id="getDepts" resultMap="deptanddetail">
+        <![CDATA[
+          select * from t_department d,t_department_detail dd where d.id=dd.id
+        ]]>
+    </select>
+
+    <resultMap id="deptandemp" type="department">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="des" property="des"/>
+        <collection property="emps" javaType="list" ofType="emp">
+            <id column="empid" property="id"></id>
+            <result column="ename" property="ename"/>
+            <result column="age" property="age"/>
+            <result column="did" property="did"/>
+        </collection>
+    </resultMap>
+    <!--一对多级联查询-->
+    <select id="getDeptAndEmp" resultMap="deptandemp">
+        <![CDATA[
+          select d.*,e.id as empid,ename,age,did from t_department d,emp e where d.id=e.did
+        ]]>
+    </select>
+
+    <sql id="where">
+        <where>
+            <if test="title!=null and title!=''">
+              title like concat('%',#{title})
+            </if>
+            <if test="des!=null and des!=''">
+            and des like concat('%',#{des},'%')
+            </if>
+        </where>
+    </sql>
+    <!--动态SQL之if标签-->
+    <select id="selDept" parameterType="department" resultType="department">
+    <![CDATA[
+        select * from t_department
+        ]]>
+        <!--<if test="title!=null and title!=''">-->
+            <!--and title like concat('%',#{title})-->
+        <!--</if>-->
+        <!--<if test="des!=null and des!=''">-->
+            <!--and des like concat('%',#{des},'%')-->
+        <!--</if>-->
+
+
+        <!--<choose>-->
+            <!--<when test="title!=null and title!=''">-->
+                <!--and title like concat('%',#{title})-->
+            <!--</when>-->
+            <!--<when test="des!=null and des!=''">-->
+                <!--and des like concat('%',#{des},'%')-->
+            <!--</when>-->
+            <!--<otherwise>-->
+
+            <!--</otherwise>-->
+        <!--</choose>-->
+
+        <include refid="where"/>
+     </select>
+
+    <!--动态SQL之set：自动去掉更新语句后面的逗号-->
+    <update id="updDept" parameterType="department">
+        <![CDATA[
+          update t_department
+        ]]>
+        <set>
+            <if test="title!=null and title!=''">
+                title=#{title},
+            </if>
+            <if test="des!=null and des!=''">
+                des=#{des},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <!--forEach批量删除-->
+    <delete id="delDept">
+        delete from t_department where id IN
+        <foreach collection="array" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--分页查询-->
+    <select id="pageEmp" resultType="emp">
+        <![CDATA[
+        select * from emp
+        ]]>
+        <if test="emp!=null">
+            <where>
+                <if test="emp.ename!=null and emp.ename!=''">
+                    ename like concat('%',#{emp.ename},'%')
+                </if>
+                <if test="emp.age!=null and emp.age!=''">
+                    and age = #{emp.age}
+                </if>
+            </where>
+        </if>
+         limit #{beginIndex} ,#{pageCount}
+    </select>
+
+    <insert id="addEmp" parameterType="emp">
+        <selectKey keyColumn="id" keyProperty="id" resultType="integer" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+        <![CDATA[
+        insert into emp(ename,age,did) values (#{ename},#{age},#{did})
+        ]]>
+    </insert>
+</mapper>
