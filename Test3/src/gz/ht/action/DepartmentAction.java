@@ -20,6 +20,7 @@ public class DepartmentAction {
     public String list(){
         List<Department> list = service.alldept();
         System.out.println(list.size());
+        System.out.println("测试Git！");
         return null;
     }
 }
